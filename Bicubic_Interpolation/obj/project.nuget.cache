@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "dieakH7H4kkI2tXibBRP4w6X2QUJy/p6hfDVE2/ItLFrvhHTeMsGeuagl73hPstpaDxsElf1pUjVRLtZoHaX/A==",
+  "success": true,
+  "projectFilePath": "C:\\Repositories\\BicubicInterpolation\\Bicubic_Interpolation\\Bicubic_Interpolation\\Bicubic_Interpolation.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Michael\\.nuget\\packages\\opencvsharp4\\4.6.0.20220608\\opencvsharp4.4.6.0.20220608.nupkg.sha512",
+    "C:\\Users\\Michael\\.nuget\\packages\\opencvsharp4.runtime.win\\4.6.0.20220608\\opencvsharp4.runtime.win.4.6.0.20220608.nupkg.sha512",
+    "C:\\Users\\Michael\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
+    "C:\\Users\\Michael\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
