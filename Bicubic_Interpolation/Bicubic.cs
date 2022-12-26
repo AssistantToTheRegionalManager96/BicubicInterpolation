@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -25,25 +26,30 @@ namespace Bicubic_Interpolation
                                             { 119, 120, 118, 116, 115 },
                                             {117, 116, 115, 116, 114 }};
 
-            PixelMatrix = new Mat(5, 5, MatType.CV_64FC1, a);
-
+            //PixelMatrix = new Mat(5, 5, MatType.CV_64FC1, a);
+            Bitmap bmp = new Bitmap(@"C:\Users\44774\Downloads\Jesus.png");
+            
+            PixelMatrix = new Mat(@"C:\Users\44774\Downloads\Jesus.png", ImreadModes.Grayscale);
+            double[,] Array = new double[PixelMatrix.Rows, PixelMatrix.Cols];
+            PixelMatrix.GetArray();
+            //PixelMatrix.CvtColor(ColorConversionCodes.RGB2GRAY);
             for (int i = 0; i < PixelMatrix.Cols; i++)
             {
                 for (int j = 0; j < PixelMatrix.Rows; j++)
                 {
                     Debug.Write(PixelMatrix.At<double>(i, j));
                     Debug.Write(" ");
-
                 }
                 Debug.Write(Environment.NewLine);
+
             }
+            
+
 
             FindXDerivative();
             FindYDerivative();
             FindXYDerivative();
-            //Concatenate(1,1);
-            //Interpolate(0.5, 0.5);
-            Enlarge(PixelMatrix, 2);
+            //Enlarge(PixelMatrix, 2);
 
         }
 
@@ -52,19 +58,6 @@ namespace Bicubic_Interpolation
             XDerivative = new Mat(PixelMatrix.Size(), MatType.CV_64FC1);
             Mat kernel = new Mat(1, 3, MatType.CV_64FC1, new double[3] { 0.5, 0, -0.5 });
             Cv2.Filter2D(PixelMatrix, XDerivative, MatType.CV_64FC1, kernel);
-
-            /// agjsdojgnkalsdngjsdkjgnasdljkngj
-
-            //for (int i = 0; i < XDerivative.Cols; i++)
-            //{
-            //    for (int j = 0; j < XDerivative.Rows; j++)
-            //    {
-            //        Debug.Write(XDerivative.At<double>(i, j));
-            //        Debug.Write(" ");
-            //    }
-            //    Debug.Write(Environment.NewLine);
-
-            //}
 
             return XDerivative;
         }
@@ -75,19 +68,6 @@ namespace Bicubic_Interpolation
             Mat kernel = new Mat(3, 1, MatType.CV_64FC1, new double[3] { 0.5, 0, -0.5 });
             Cv2.Filter2D(PixelMatrix, YDerivative, MatType.CV_64FC1, kernel);
 
-
-
-            //for (int i = 0; i < YDerivative.Cols; i++)
-            //{
-            //    for (int j = 0; j < YDerivative.Rows; j++)
-            //    {
-            //        Debug.Write(YDerivative.At<double>(i, j));
-            //        Debug.Write(" ");
-            //    }
-            //    Debug.Write(Environment.NewLine);
-
-            //}
-
             return YDerivative;
         }
 
@@ -96,18 +76,6 @@ namespace Bicubic_Interpolation
             XYDerivative = new Mat(PixelMatrix.Size(), MatType.CV_64FC1);
             Mat kernel = new Mat(1, 3, MatType.CV_64FC1, new double[3] { 0.5, 0, -0.5 });
             Cv2.Filter2D(YDerivative, XYDerivative, MatType.CV_64FC1, kernel);
-
-            //for (int i = 0; i < XYDerivative.Cols; i++)
-            //{
-            //    for (int j = 0; j < XYDerivative.Rows; j++)
-            //    {
-            //        Debug.Write(XYDerivative.At<double>(i, j));
-            //        Debug.Write(" ");
-            //    }
-            //    Debug.Write(Environment.NewLine);
-
-            //}
-
 
             return XYDerivative;
         }
@@ -120,16 +88,7 @@ namespace Bicubic_Interpolation
                                             {YDerivative.At<double>(x+1,y), YDerivative.At<double>(x+1,y+1), XYDerivative.At<double>(x+1,y+1), XYDerivative.At<double>(x+1,y+1)}};
 
             Full_Matrix = new Mat(4, 4, MatType.CV_64FC1, b);
-            //for (int i = 0; i < Full_Matrix.Cols; i++)
-            //{
-            //    for (int j = 0; j < Full_Matrix.Rows; j++)
-            //    {
-            //        Debug.Write(Full_Matrix.At<double>(i, j));
-            //        Debug.Write(" ");
-            //    }
-            //    Debug.Write(Environment.NewLine);
 
-            //}
             double[,] c = new double[4, 4] { { 1, 0, 0, 0},
                                             { 0, 0, 1, 0},
                                             { -3, 3, -2, -1 },
@@ -140,17 +99,6 @@ namespace Bicubic_Interpolation
             Coefficients = c_matrix * Full_Matrix * c_matrix.Transpose();
 
             Debug.Write(Environment.NewLine);
-            //for (int i = 0; i < Coefficients.Cols; i++)
-            //{
-
-            //    for (int j = 0; j < Coefficients.Rows; j++)
-            //    {
-            //        Debug.Write(Coefficients.At<double>(i, j));
-            //        Debug.Write(" ");
-            //    }
-            //    Debug.Write(Environment.NewLine);
-
-            //}
         }
         public double Interpolate(double x, double y)
         {
@@ -158,37 +106,36 @@ namespace Bicubic_Interpolation
             Mat y_matrix = new Mat(4, 1, MatType.CV_64FC1, new double[] { 1, y, Math.Pow(y, 2), Math.Pow(y, 3) });
 
             var p = (x_matrix * Coefficients * y_matrix);
-            //Debug.Write(p.ToMat().At<double>(0,0));
 
             return p.ToMat().At<double>(0,0);
         }
 
         public Mat Enlarge(Mat startMatrix, int factor)
         {
-            Mat resultantMatrix = new Mat(startMatrix.Size().Width * factor, startMatrix.Size().Height *factor, MatType.CV_64FC1);
-            for (int i = 0; i < startMatrix.Cols - 1 * factor; i++)
+            Mat resultantMatrix = new Mat(startMatrix.Size().Width * factor - 1, startMatrix.Size().Height * factor - 1, MatType.CV_64FC1);
+            for (int i = 0; i <= (startMatrix.Cols - 1) * factor; i++)
             {
-                for (int j = 0; j < startMatrix.Rows - 1 * factor; j++)
+                for (int j = 0; j <= (startMatrix.Rows - 1) * factor; j++)
                 {
                     if (i % factor == 0 && j % factor == 0) resultantMatrix.At<double>(i, j) = PixelMatrix.At<double>(i / factor, j / factor);
                     else
                     {
                         Concatenate((int)Math.Floor((double)(i/factor)), (int)Math.Floor((double)(j/factor)));
-                        resultantMatrix.At<double>(i, j) = Interpolate(i/factor, j/factor);
+                        resultantMatrix.At<double>(i, j) = Interpolate((double)(i % factor) / factor, (double)(j % factor) / factor);
                     }
                 }
             }
 
-            for (int i = 0; i < resultantMatrix.Cols; i++)
-            {
-                for (int j = 0; j < resultantMatrix.Rows; j++)
-                {
-                    Debug.Write(resultantMatrix.At<double>(i, j));
-                    Debug.Write(" ");
-                }
-                Debug.Write(Environment.NewLine);
+            //for (int i = 0; i < resultantMatrix.Cols; i++)
+            //{
+            //    for (int j = 0; j < resultantMatrix.Rows; j++)
+            //    {
+            //        Debug.Write(resultantMatrix.At<double>(i, j));
+            //        Debug.Write(" ");
+            //    }
+            //    Debug.Write(Environment.NewLine);
 
-            }
+            //}
 
             return resultantMatrix;
 
